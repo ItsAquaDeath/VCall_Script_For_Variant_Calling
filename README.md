@@ -15,7 +15,7 @@ The script can be executed in bash so long as the following programs are install
 
 I don't own any rights regarding the forementioned programs, and all credit goes to their respective authors.
 
-The shell script is a result of an individual project within the MsC in Bioinformatics from Universitat de València (UV), Spain. With this last sentence you might be thinking: "Woah, a script made by a newbie bioinformatician... It's going to be a total mess! I can surely do something much better than this!" And you'd be totally right about that! I'm still a bit of a noob with shell scripting, so there are surely a ton of areas within the script that can be further optimized or better programmed.
+The shell script is a result of an individual project within the MsC in Bioinformatics from Universitat de València (UV), Spain. With this last sentence you might be thinking: *Woah, a script made by a newbie bioinformatician... It's going to be a total mess! I can surely do something much better than this!* And you'd be absolutely right about that! I'm still a bit of a noob with shell scripting, so there are surely a ton of areas within the script that can be further optimized or better programmed.
 
 I'm currently not intending to upgrade this version of the script. Maybe in the future? Who knows...
 
