@@ -47,7 +47,7 @@ exit
 #### PROGRAM PATHS ####
 #######################
 picard="java -jar /opt/picard.jar"
-gatk=""
+gatk="/opt/gatk-4.x.x.x/gatk"
 
 ###########################
 #### ARGUMENT PARSING #####
@@ -65,12 +65,12 @@ do
 		g) refgenome=$OPTARG;;
 		t) type=$OPTARG;;
 		r) rmdup=$OPTARG;;
-		d) rprs=$OPTARG;;
-		q) qd=$OPTARG;;
+		d) rd=$OPTARG;;
+		q) qual=$OPTARG;;
 		c) qcheck=$OPTARG;;
 		o) outdir=$OPTARG;;
 		I) indir=$OPTARG;;
-		f) fs=$OPTARG;;
+		f) fraction=$OPTARG;;
 		p) ploidy=$OPTARG;;
 		a) annotation=$OPTARG;;
 		e) err=$OPTARG;;
@@ -112,28 +112,19 @@ fi
 ###################################################
 #### DEFAULT VALUES IF ARGUMENT IS NOT DEFINED ####
 ###################################################
-if [[ -z $qd ]] && [[ $type == "gatk" ]];
+if [[ -z $qual ]];
 then
-	qd=2.0
-elif [[ -z $qd ]] && [[ $type != "gatk" ]];
-then
-	qd=20
+	qual=20
 fi
 
-if [[ -z $rprs ]] && [[ $type == "gatk" ]];
+if [[ -z $rd ]];
 then
-	rprs=-8.0
-elif [[ -z $rprs ]] && [[ $type != "gatk" ]];
-then
-	rprs=10
+	rd=10
 fi
 
-if [[ -z $fs ]] && [[ $type == "gatk" ]];
+if [[ -z $fraction ]];
 then
-	fs=60.0
-elif [[ -z $fs ]] && [[ $type != "gatk" ]];
-then
-	fs=0.3
+	fraction=0.3
 fi
 
 #########################
@@ -156,7 +147,6 @@ else
 	outdir=$(basename $outdir)
 	echo "$outdir/ will be taken to dump program output files!"
 fi
-
 
 ###############################
 #### DOWNLOAD FILES CHECK #####
@@ -440,12 +430,12 @@ if [[ $type == "freebayes" ]];
 then
 	echo "*****************************************************************"
 	echo "Filtering variants according to the filters of the script:"
-	printf "\t - Read quality (Q): %s.\n" "$qd"
-	printf "\t - Fraction of alternative alleles: %s.\n" "$fs"
-	printf "\t - Coverage (ReadDepth): %s.\n" "$rprs"
+	printf "\t - Read quality (Q): %s.\n" "$qual"
+	printf "\t - Fraction of alternative alleles: %s.\n" "$fraction"
+	printf "\t - Coverage (ReadDepth): %s.\n" "$rd"
 	while read -r name;
 	do
-		echo bcftools filter -i "'QUAL>=$qd && (AB>=$fs || AB==0) && INFO/DP>=$rprs'" -O z -o $outdir/$name.filtered.vcf.gz $outdir/$name.vcf.gz | sh
+		echo bcftools filter -i "'QUAL>=$qual && (AB>=$fraction || AB==0) && INFO/DP>=$rd'" -O z -o $outdir/$name.filtered.vcf.gz $outdir/$name.vcf.gz | sh
 		if [[ $? -eq 0 ]];
 		then
 			echo "Variant filter of file $name.vcf.gz: SUCCESS"
@@ -456,42 +446,22 @@ then
 	done < $filelist
 fi
 
-if [[ $type == "bcftools" ]];
+if [[ $type == "bcftools" ]] || [[ $type == "gatk" ]];
 then
 	echo "*****************************************************************"
 	echo "Filtering variants according to the filters of the script:"
-	printf "\t - Read quality (Q): %s.\n" "$qd"
-	printf "\t - Fraction of alternative alleles: %s.\n" "$fs"
-	printf "\t - Coverage (ReadDepth): %s.\n" "$rprs"
+	printf "\t - Read quality (Q): %s.\n" "$qual"
+	printf "\t - Fraction of alternative alleles: %s.\n" "$fraction"
+	printf "\t - Coverage (ReadDepth): %s.\n" "$rd"
 	while read -r name;
 	do
-		echo bcftools filter -i "'QUAL>=$qd && (AF>=$fs) && INFO/DP>=$rprs'" -O z -o $outdir/$name.filtered.vcf.gz $outdir/$name.vcf.gz | sh
+		echo bcftools filter -i "'QUAL>=$qual && (AF>=$fraction) && INFO/DP>=$rd'" -O z -o $outdir/$name.filtered.vcf.gz $outdir/$name.vcf.gz | sh
 		if [[ $? -eq 0 ]];
 		then
 			echo "Variant filter of file $name.vcf.gz: SUCCESS"
 		else
 			echo "Variant filter of file $name.vcf.gz: FAIL"
 			exit 1
-		fi
-	done < $filelist
-fi
-
-if [[ $type == "gatk" ]];
-then
-	echo "*****************************************************************"
-	echo "Filtering variants according to the filters of the script:"
-	printf "\t - QualByDepth (QD): %s.\n" "$qd"
-	printf "\t - FisherStrand (FS): %s.\n" "$fs"
-	printf "\t - ReadPosRankSum (RPRS): %s.\n" "$rprs"
-	while read -r name;
-	do
-		$gatk VariantFiltration -R $refgenome -V $outdir/$name.vcf.gz -O $outdir/$name.filtered.vcf.gz -filter "QD<$qd" --filter-name "QD" -filter "FS>$fs" --filter-name "FS" -filter "ReadPosRankSum<$rprs" --filter-name "ReadPosRankSum"
-		if [[ $? -eq 0 ]];
-		then
-			echo "Variant filter of file $name.vcf.gz: SUCCESS"
-		else
-			echo "Variant filter of file $name.vcf.gz: FAIL"
-			exit
 		fi
 	done < $filelist
 fi
@@ -506,8 +476,6 @@ echo "Now annotating variants with snpEff..."
 while read -r name;
 do
 	snpEff -v $annotation -s $outdir/"$name"_snpEff.html $outdir/$name.filtered.vcf.gz > $outdir/$name.annotated.vcf
-	grep -v "^GL" $outdir/$name.annotated.vcf > $outdir/$name.tmp; mv $outdir/$name.tmp $outdir/$name.annotated.vcf
-
 	if [[ $? -eq 0 ]];then
 		echo "Variant Annotation of $name.filtered.vcf.gz: SUCCESS"
 		echo "*****************************************************************"
@@ -515,6 +483,42 @@ do
 		echo "Variant annotation of $name.filtered.vcf.gz: FAIL"
 		exit 1
 	fi
+
+	grep -v "^GL" $outdir/$name.annotated.vcf > $outdir/$name.tmp; mv $outdir/$name.tmp $outdir/$name.annotated.vcf
+	bgzip $outdir/$name.annotated.vcf
+	tabix -f -p vcf $outdir/$name.vcf.gz
 done < $filelist
 echo "Variant annotation completed!"
 echo "*****************************************************************"
+
+##########################################
+#### MOVE VCF FILES INTO A COMMON DIR ####
+##########################################
+mkdir $outdir/vcf_files/
+mv $outdir/*.vcf* $outdir/vcf_files
+mv $outdir/*snpEff* $outdir/vcf_files
+
+##############
+#### EXIT ####
+##############
+true > $outdir/README.txt
+printf "If you read this file it means every file has been processed\n\
+correctly and you got all your result files in %s/ directory!\n\n\
+You might be wondering what exactly is the result of this script...\n
+Basically, you got the following stuff in your output directory:\n
+\t1. If you executed the script with -c option, you'll have a 'quality_pre'\n\
+\t   and a 'quality_post' directory. Here are located fastqc reports of your\n\
+\t   fastq files before and after trimming with cutadapt.\n
+\t2. Your trimmed fastq's in the output directory.\n
+\t3. Your mapped .bam files to the reference genome provided, where\n\
+\t   duplicated reads have already been discarded (rmDup).\n
+\t4. Files with variant called in vcf compressed format (vcf.gz), as well\n\
+\t   as index files for those (tbi).\n
+\t5. Filtered vcf files according to the quality filters stablished.\n
+\t6. A snpEff dir with the annotated vcf file and some more info files\n\
+\t   from snpEff.\n\nThis should be all you need for further analysis. GL!\n" "$outdir" > $outdir/README.txt
+
+echo "$0 script has concluded successfully"
+echo "In $outdir/README.txt you have more information about the output created"
+echo "*****************************************************************"
+exit 0
