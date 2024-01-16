@@ -1,0 +1,11 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	SRR18888497	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888497_fastqc.zip
+FastQC	all_sections	SRR18888498	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888498_fastqc.zip
+FastQC	all_sections	SRR18888499	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888499_fastqc.zip
+FastQC	all_sections	SRR18888500	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888500_fastqc.zip
+FastQC	all_sections	SRR18888501	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888501_fastqc.zip
+FastQC	all_sections	SRR18888502	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888502_fastqc.zip
+FastQC	all_sections	SRR18888503	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888503_fastqc.zip
+FastQC	all_sections	SRR18888504	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888504_fastqc.zip
+FastQC	all_sections	SRR18888505	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888505_fastqc.zip
+FastQC	all_sections	SRR18888506	/mnt/c/Users/alvar/Desktop/Master_Bioinformatica/2_Bioinformatica/Estudios in silico en biomedicina/Tarea_B/prueba/pre_trimming/SRR18888506_fastqc.zip
